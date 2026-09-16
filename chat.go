@@ -14,12 +14,63 @@ import (
 	"golang.org/x/time/rate"
 )
 
+/*
+ * chatRoom
+ */
+type ChatRoom struct {
+	clients    map[string]Client
+	clientsMtx sync.Mutex
+}
+
+type Client struct {
+	name       string
+	conn       *websocket.Conn
+	belongsTo  *ChatRoom
+	subscriber *subscriber
+}
+
+func (cr *ChatRoom) Join(name string, conn *websocket.Conn, s *subscriber) *Client {
+	defer cr.clientsMtx.Unlock()
+
+	cr.clientsMtx.Lock() // preventing simultaneous access
+	if _, exists := cr.clients[name]; exists {
+		return nil
+	}
+
+	client := Client{
+		name:       name,
+		conn:       conn,
+		belongsTo:  cr,
+		subscriber: s,
+	}
+	cr.clients[name] = client
+
+	return &client
+}
+
+func (cr *ChatRoom) Leave(name string) {
+	cr.clientsMtx.Lock()
+	delete(cr.clients, name)
+	cr.clientsMtx.Unlock()
+}
+
+func (cr *ChatRoom) Broadcast(msg []byte, sender *Client) {
+	cr.clientsMtx.Lock()
+	defer cr.clientsMtx.Unlock()
+
+	for _, c := range cr.clients {
+		if sender != nil && c == *sender {
+			continue
+		}
+	}
+}
+
 type chatServer struct {
 	/*
-		 * subscriberMessageBuffer controls the max number
-		* of messages that can be queued for a subscriber
-		* before it is kicked.
-	*/
+	* subscriberMessageBuffer controls the max number
+	* of messages that can be queued for a subscriber
+	* before it is kicked.
+	 */
 	subscriberMessageBuffer int // Default to 16
 
 	// publishLimiter controls the rate limit applied to the publish endpoint
