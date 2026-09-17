@@ -30,3 +30,17 @@ type Message struct {
 func Encode(msg Message) ([]byte, error) {
 	return json.Marshal(msg)
 }
+
+// ServerMessage returns a message the server writes itself: From and Time are already filled in.
+//
+// A caller that goes through a room gets both done by Room.encode.
+// This is for the paths that cannot, such as refusing a join before the client is in a room, so the rule
+// "only the server stamps a time" stays in one package.
+func ServerMessage(msgType MessageType, text string) Message {
+	return Message{
+		Type: msgType,
+		From: ServerName,
+		Text: text,
+		Time: time.Now().UTC(),
+	}
+}
