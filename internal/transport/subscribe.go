@@ -147,5 +147,10 @@ func (s *Server) rejectJoin(conn *connection, err error) {
 	if encErr == nil {
 		_ = conn.write(ctx, payload)
 	}
-	conn.drop("join rejected")
+
+	/*
+	 * 	rejectJoin closes the socket without sending a WebSocket close frame by this code below
+	 */
+	// conn.drop("join rejected")
+	_ = conn.ws.Close(websocket.StatusPolicyViolation, "name already taken")
 }
