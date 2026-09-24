@@ -1,81 +1,130 @@
 body {
-  width: 100vw;
-  min-width: 320px;
+    background: #1a2639;
+    background-image:
+        linear-gradient(45deg, #0f1a2b 25%, transparent 25%),
+        linear-gradient(-45deg, #0f1a2b 25%, transparent 25%),
+        linear-gradient(45deg, transparent 75%, #0f1a2b 75%),
+        linear-gradient(-45deg, transparent 75%, #0f1a2b 75%);
+    background-size: 4px 4px;
+    font-family: Tahoma, "MS Sans Serif", Geneva, Verdana, sans-serif;
 }
-
-#root {
-  padding: 40px 20px;
-  max-width: 600px;
-  margin: auto;
-  height: 100vh;
-
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
+.bevel-raised {
+    border: 2px solid;
+    border-color: #fff #808080 #808080 #fff;
+    background: #d4d0c8;
 }
-
-#root > * + * {
-  margin: 20px 0 0 0;
+.bevel-raised:active,
+.bevel-raised.pressed {
+    border-color: #808080 #fff #fff #808080;
 }
-
-/* 100vh on safari does not include the bottom bar. */
-@supports (-webkit-overflow-scrolling: touch) {
-  #root {
-    height: 85vh;
-  }
+.bevel-sunken {
+    border: 2px solid;
+    border-color: #808080 #fff #fff #808080;
+    background: #fff;
 }
-
-#message-log {
-  width: 100%;
-  flex-grow: 1;
-  overflow: auto;
+.bevel-sunken-deep {
+    border: 2px solid;
+    border-color: #404040 #dfdfdf #dfdfdf #404040;
+    background: #fff;
 }
-
-#message-log p:first-child {
-  margin: 0;
+.cf-header {
+    background: linear-gradient(
+        180deg,
+        #7db32a 0%,
+        #5a8f1a 40%,
+        #3f6b0f 45%,
+        #528a1a 100%
+    );
+    border-bottom: 3px solid #2b4a08;
+    box-shadow:
+        inset 0 1px 0 #a8e05a,
+        0 3px 6px rgba(0, 0, 0, 0.5);
 }
-
-#message-log > * + * {
-  margin: 10px 0 0 0;
+.cf-toolbar {
+    background: linear-gradient(
+        180deg,
+        #e2efc9 0%,
+        #c8dfa0 30%,
+        #9fca5e 60%,
+        #7fb43a 100%
+    );
+    border-bottom: 2px solid #4f7a1a;
+    box-shadow: inset 0 1px 0 #f5ffe0;
 }
-
-#publish-form-container {
-  width: 100%;
+.cf-dock {
+    background: linear-gradient(
+        180deg,
+        #f0f7e2 0%,
+        #d2e9a8 30%,
+        #a4d158 70%,
+        #7eb738 100%
+    );
+    border-top: 2px solid #4a7416;
+    box-shadow: inset 0 2px 0 #f5ffe8;
 }
-
-#publish-form {
-  width: 100%;
-  display: flex;
-  height: 40px;
+.retro-scroll::-webkit-scrollbar {
+    width: 16px;
+    height: 16px;
 }
-
-#publish-form > * + * {
-  margin: 0 0 0 10px;
+.retro-scroll::-webkit-scrollbar-track {
+    background: #d4d0c8;
+    border-left: 1px solid #808080;
 }
-
-#publish-form input[type='text'] {
-  flex-grow: 1;
-
-  -moz-appearance: none;
-  -webkit-appearance: none;
-  word-break: normal;
-  border-radius: 5px;
-  border: 1px solid #ccc;
+.retro-scroll::-webkit-scrollbar-thumb {
+    background: #b0b0b0;
+    border: 2px solid;
+    border-color: #fff #808080 #808080 #fff;
 }
-
-#publish-form input[type='submit'] {
-  color: white;
-  background-color: black;
-  border-radius: 5px;
-  padding: 5px 10px;
-  border: none;
+.title-bar {
+    background: linear-gradient(90deg, #0a246a 0%, #a6caf0 100%);
+    color: #fff;
+    font-weight: bold;
+    text-shadow: 1px 1px 0 #000;
 }
-
-#publish-form input[type='submit']:hover {
-  background-color: red;
+.chat-text {
+    font-family: Tahoma, "MS Sans Serif", sans-serif;
+    font-size: 12px;
+    line-height: 1.4;
 }
-
-#publish-form input[type='submit']:active {
-  background-color: red;
+@keyframes blinker {
+    0%,
+    100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.2;
+    }
+}
+.blink {
+    animation: blinker 1.2s step-start infinite;
+}
+@keyframes nudgeShake {
+    0% {
+        transform: translate(0, 0);
+    }
+    20% {
+        transform: translate(-4px, 2px);
+    }
+    40% {
+        transform: translate(4px, -2px);
+    }
+    60% {
+        transform: translate(-3px, 1px);
+    }
+    80% {
+        transform: translate(3px, -1px);
+    }
+    100% {
+        transform: translate(0, 0);
+    }
+}
+.nudge-shake {
+    animation: nudgeShake 0.35s ease-in-out;
+}
+.pixel-font {
+    font-family: "VT323", "Courier New", monospace;
+    letter-spacing: 0.5px;
+}
+.led-green {
+    box-shadow: 0 0 4px #0f0;
 }
