@@ -4,11 +4,15 @@ import (
 	"context"
 	"errors"
 	"log"
+	"log/slog"
 	"net"
 	"net/http"
 	"os"
 	"os/signal"
 	"time"
+
+	"github.com/sakurayung/gochat/internal/chat"
+	"github.com/sakurayung/gochat/internal/transport"
 )
 
 func main() {
@@ -31,11 +35,22 @@ func run() error {
 	if err != nil {
 		return err
 	}
+
+	logger := slog.New(slog.NewTextHandler(os.Stdout, nil))
+
 	log.Printf("listening on ws://%v", l.Addr())
 
-	cs := newChatServer()
+	// The wiring: transport owns I/O, chat owns room/rules
+	srv := transport.NewServer(transport.Config{
+		Rooms:  chat.NewRegistry(),
+		Logger: logger,
+		Assets: http.FileServer(http.Dir("web")),
+	})
+
+	// AnnounceLimiter + OutboundQueue left as zero values
+	// so NewServer fills in its defaults.
 	s := &http.Server{
-		Handler:      cs,
+		Handler:      srv,
 		ReadTimeout:  time.Second * 10,
 		WriteTimeout: time.Second * 10,
 	}
@@ -53,8 +68,16 @@ func run() error {
 		log.Printf("terminating: %v", sig)
 	}
 
+	// shutdown order matters for websockets:
+	// 1. DisconnectAll() closes every hijacked WS connection with GoingAway, which
+	// unblocks each conn's 3 goroutines (writePump / pingLoop / readLoop in subscribe.go)
+	//
+	// 2. Shutdown() stops accepting + waits for in-flight HTTP (rooms / announce / static assets).
+	//
+	// http.Server.Shutdown alone can't do step 1 - it doesn't track hijacked connections.
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*10)
 	defer cancel()
+	srv.DisconnectAll()
 
 	return s.Shutdown(ctx)
 }
